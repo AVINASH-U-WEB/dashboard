@@ -1,6 +1,6 @@
 # 🛍️ Olist E-Commerce Data Pipeline & Order Explorer
 
-A high-performance full-stack analytical platform and data pipeline built on the **Kaggle Brazilian E-Commerce Dataset (Olist)** (~100,000 orders). The system features an **automated ETL pipeline**, an **in-memory RAM acceleration engine** for sub-millisecond query responses, **4 statistical algorithms**, and a responsive **React + TypeScript dashboard** with classic numbered pagination.
+A high-performance full-stack analytical platform and data pipeline built on the **Kaggle Brazilian E-Commerce Dataset (Olist)** (~100,000 orders)
 
 ---
 
