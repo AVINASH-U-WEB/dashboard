@@ -4,19 +4,6 @@ A high-performance full-stack analytical platform and data pipeline built on the
 
 ---
 
-## ⚡ Key Features
-
-- **Automated Multi-Table ETL**: Ingests, normalizes, and joins 9 relational Kaggle CSV tables into a consolidated SQLite database in Write-Ahead Logging (WAL) mode.
-- **0ms In-Memory Acceleration**: Preloads 99,441 records into RAM at server boot with $O(1)$ status hash indexing and $O(\log N)$ date range binary search.
-- **256-Slot LRU Bitwise Query Cache**: Caches repeated filter combinations in memory, returning filtered results in **< 1 ms**.
-- **4 Custom Algorithms**:
-  1. **Sliding-Window Seller Late Rate**: Rolling merchant reliability score over the seller's last 30 orders ($W=30$).
-  2. **Delivery Lag Z-Score Anomaly Detector**: Flags statistical transit exceptions per category ($|Z| > 2.0$).
-  3. **In-Memory TF-IDF Review Search**: Cosine similarity vector search over customer review feedback comments.
-  4. **Numbered Cursor/Offset Pagination**: High-efficiency RAM slice-based pagination with page jumps and rows-per-page selection.
-- **Clean Responsive Dashboard**: Light sky-blue glassmorphic UI featuring live metric KPIs, fulfillment status tabs, date filters, and an order ledger table.
-
----
 
 ## 🛠️ Tech Stack
 
