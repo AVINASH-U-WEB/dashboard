@@ -3,17 +3,50 @@
 @tailwind utilities;
 
 @layer base {
-  html {
+  html, body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #f5f5f0;
+    color: #1a1a2e;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-md rounded-2xl shadow-glass border border-white/60 dark:border-slate-700/60;
+  .card {
+    @apply bg-white rounded-2xl shadow-card border border-gray-100;
   }
 
-  .glass-card-lg {
-    @apply bg-white/70 dark:bg-slate-800/70 backdrop-blur-md rounded-3xl shadow-glass-lg border border-white/60 dark:border-slate-700/60;
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer;
+  }
+
+  .sidebar-link-active {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/15 transition-all duration-150 cursor-pointer;
+  }
+
+  .status-pill {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .kpi-card {
+    @apply rounded-2xl p-5 relative overflow-hidden;
   }
 }

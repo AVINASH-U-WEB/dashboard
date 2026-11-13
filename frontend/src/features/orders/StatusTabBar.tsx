@@ -23,8 +23,8 @@ export const StatusTabBar: React.FC<StatusTabBarProps> = ({
   ]
 
   return (
-    <div className="px-6 py-2">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="px-6 py-1">
+      <div className="flex flex-wrap items-center gap-2">
         {tabs.map((tab) => {
           const Icon = tab.icon
           const isActive = selectedStatus === tab.id
@@ -33,31 +33,21 @@ export const StatusTabBar: React.FC<StatusTabBarProps> = ({
             <button
               key={tab.id}
               onClick={() => onSelectStatus(tab.id)}
-              className={`group relative p-3.5 rounded-2xl text-left transition-all duration-200 border ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-150 border ${
                 isActive
-                  ? 'bg-white dark:bg-[#162035] shadow-md shadow-sky-500/10 border-sky-300/80 dark:border-sky-500/60 text-slate-900 dark:text-white -translate-y-0.5'
-                  : 'bg-white/65 dark:bg-[#131b2e]/70 hover:bg-white/85 dark:hover:bg-[#1a253e] border-white/60 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-glass'
+                  ? 'bg-[#1a1a2e] text-white border-[#1a1a2e] shadow-sm'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700 hover:shadow-sm'
               }`}
             >
-              <div className="flex items-center justify-between mb-2">
-                <div
-                  className={`p-2 rounded-xl transition-colors ${
-                    isActive
-                      ? 'bg-sky-500 text-white'
-                      : 'bg-white/80 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                </div>
-                {isActive && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                )}
-              </div>
-
-              <div className="text-xs font-semibold tracking-tight">{tab.label}</div>
-              <div className="text-[11px] font-medium text-slate-400 dark:text-slate-400 mt-0.5">
-                {tab.count.toLocaleString()} orders
-              </div>
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+              <span>{tab.label}</span>
+              <span
+                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
+                {tab.count.toLocaleString()}
+              </span>
             </button>
           )
         })}

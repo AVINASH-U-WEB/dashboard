@@ -15,7 +15,6 @@ export const Dashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(25)
 
-  // Fetch page orders
   const { data, isLoading } = useOrders({
     status: selectedStatus,
     from_date: fromDate || undefined,
@@ -64,17 +63,17 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 pb-16">
-      {/* 1. Header Overview */}
+    <div className="space-y-5 pb-8">
+      {/* 1. Greeting */}
       <HeroSection />
 
-      {/* 2. Top Client/Status Tab Row */}
+      {/* 2. Status Pill Tabs */}
       <StatusTabBar
         selectedStatus={selectedStatus}
         onSelectStatus={handleStatusChange}
       />
 
-      {/* 3. 4 KPI Metrics Row */}
+      {/* 3. KPI Cards */}
       <div className="px-6">
         <StatsBar />
       </div>
@@ -95,7 +94,7 @@ export const Dashboard: React.FC = () => {
         />
       </div>
 
-      {/* 5. Master Order Ledger Table with Numbered Pagination */}
+      {/* 5. Orders Table */}
       <div className="px-6">
         <OrderTable
           orders={orders}

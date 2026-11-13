@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -8,30 +7,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        sky: {
-          50:  '#f0f7ff',
-          100: '#e0effd',
-          200: '#C8DCF0',
-          300: '#B0CCE8',
-          400: '#90b8dc',
-          500: '#6aa0cc',
-          600: '#4a84b8',
-          700: '#3568a0',
-          800: '#245088',
-          900: '#163870',
-        },
-        glass: {
-          white: 'rgba(255,255,255,0.80)',
-          border: 'rgba(255,255,255,0.60)',
-        },
-      },
-      backdropBlur: {
-        xs: '2px',
-        md: '12px',
+        sidebar: '#1a1a2e',
+        'sidebar-hover': '#16213e',
+        'sidebar-active': '#0f3460',
+        'card-yellow': '#f5e642',
+        'card-pink': '#f9a8d4',
+        'card-green': '#bbf7d0',
+        'card-blue': '#bae6fd',
+        'card-purple': '#ddd6fe',
+        accent: '#1a1a2e',
       },
       boxShadow: {
-        glass: '0 4px 24px 0 rgba(80,120,180,0.08)',
-        'glass-lg': '0 8px 40px 0 rgba(80,120,180,0.14)',
+        card: '0 2px 12px 0 rgba(0,0,0,0.06)',
+        'card-lg': '0 4px 24px 0 rgba(0,0,0,0.10)',
+        sidebar: '4px 0 24px 0 rgba(0,0,0,0.12)',
       },
       borderRadius: {
         '2xl': '1rem',
