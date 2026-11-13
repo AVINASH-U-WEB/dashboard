@@ -2,9 +2,9 @@ import React from 'react'
 import {
   LayoutDashboard,
   ShoppingBag,
-  Truck,
-  Users,
-  AlertTriangle,
+  Ticket,
+  UserCheck,
+  ShieldAlert,
   Settings,
   Database,
   ChevronLeft,
@@ -114,14 +114,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
           {!isCollapsed && (
             <p className="px-3 pb-2 text-[10px] font-bold tracking-widest text-gray-500 uppercase">
-              Operations
+              Operations &amp; Modules
             </p>
           )}
           <div className="space-y-1">
             <NavItem
               icon={LayoutDashboard}
               label="Dashboard"
-              active={activePage === 'dashboard' || activePage === 'orders'}
+              active={activePage === 'dashboard'}
               collapsed={isCollapsed}
               onClick={() => onNavigate('dashboard')}
             />
@@ -131,30 +131,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
               count="99.4k"
               active={activePage === 'ledger'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => onNavigate('ledger')}
             />
+            {/* 1. Ticketing Module (Write Layer) */}
             <NavItem
-              icon={Truck}
-              label="Fulfillment & Transit"
-              active={activePage === 'fulfillment'}
+              icon={Ticket}
+              label="Ticketing Module (Write Layer)"
+              active={activePage === 'tickets'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => onNavigate('tickets')}
             />
+            {/* 2. Customer Profile & Order History */}
             <NavItem
-              icon={Users}
-              label="Merchant Delay"
-              count="3,095"
-              active={activePage === 'merchants'}
+              icon={UserCheck}
+              label="Customer Profile & Order History"
+              active={activePage === 'customers'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => onNavigate('customers')}
             />
+            {/* 3. SLA & Escalation Metrics */}
             <NavItem
-              icon={AlertTriangle}
-              label="Flagged Exceptions"
-              count="4,424"
-              active={activePage === 'exceptions'}
+              icon={ShieldAlert}
+              label="SLA & Escalation Metrics"
+              count="7,861"
+              active={activePage === 'sla_escalations'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => onNavigate('sla_escalations')}
             />
           </div>
         </div>
@@ -169,16 +171,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <NavItem
               icon={Database}
               label="SQLite Database"
-              active={false}
+              active={activePage === 'database'}
               collapsed={isCollapsed}
-              onClick={() => {}}
+              onClick={() => onNavigate('dashboard')}
             />
             <NavItem
               icon={Settings}
               label="Settings"
               active={activePage === 'settings'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('settings')}
+              onClick={() => onNavigate('dashboard')}
             />
           </div>
         </div>

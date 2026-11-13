@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { HeroSection } from '../components/HeroSection'
 import { StatsBar } from '../features/orders/StatsBar'
 import { FilterBar } from '../features/orders/FilterBar'
@@ -9,11 +9,13 @@ import { Search, X } from 'lucide-react'
 interface DashboardProps {
   searchQuery?: string
   onClearSearch?: () => void
+  activePage?: string
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
   searchQuery = '',
   onClearSearch,
+  activePage = 'dashboard',
 }) => {
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [fromDate, setFromDate] = useState<string>('')
@@ -22,6 +24,31 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [isLate, setIsLate] = useState<boolean>(false)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [pageSize, setPageSize] = useState<number>(25)
+
+  // React to sidebar navigation clicks
+  useEffect(() => {
+    if (activePage === 'tickets') {
+      setSelectedStatus('all')
+      setIsAnomaly(false)
+      setIsLate(false)
+      setCurrentPage(1)
+    } else if (activePage === 'customers') {
+      setSelectedStatus('all')
+      setIsLate(false)
+      setIsAnomaly(false)
+      setCurrentPage(1)
+    } else if (activePage === 'sla_escalations') {
+      setSelectedStatus('all')
+      setIsLate(true)
+      setIsAnomaly(false)
+      setCurrentPage(1)
+    } else if (activePage === 'ledger' || activePage === 'dashboard') {
+      setSelectedStatus('all')
+      setIsAnomaly(false)
+      setIsLate(false)
+      setCurrentPage(1)
+    }
+  }, [activePage])
 
   const { data, isLoading } = useOrders({
     status: selectedStatus,
@@ -93,7 +120,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* 1. Header with greeting and live indicators */}
       <HeroSection />
 
-      {/* 2. 4 Consistently Named KPI Cards (Fulfillment, On-Time, Discrepancies, Merchant Delay) */}
+      {/* 2. 4 Consistently Named KPI Cards */}
       <StatsBar />
 
       {/* Active Search Banner (when user searches) */}

@@ -31,6 +31,7 @@ export default function App() {
         {/* Scrollable Dashboard Body */}
         <main className="flex-1 overflow-y-auto">
           <Dashboard
+            activePage={activePage}
             searchQuery={searchQuery}
             onClearSearch={() => setSearchQuery('')}
           />

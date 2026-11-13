@@ -42,30 +42,30 @@ export const StatsBar: React.FC = () => {
       chartVariant: 'blue' as const,
     },
     {
-      bg: 'bg-[#bbf7d0]', // Soft Green
-      borderColor: 'border-green-300/60',
-      icon: AlertTriangle,
-      label: 'Discrepancies',
-      sub: 'Atypical category lag',
-      value: `${anomalyPct}%`,
-      stat1Label: 'Flagged',
-      stat1Value: anomalyCount.toLocaleString(),
-      stat2Label: 'Standard',
-      stat2Value: (total - anomalyCount).toLocaleString(),
-      chartVariant: 'red' as const,
-    },
-    {
       bg: 'bg-[#bae6fd]', // Soft Blue
       borderColor: 'border-sky-300/60',
       icon: TrendingUp,
-      label: 'Merchant Delay',
-      sub: 'Seller late window',
+      label: 'Sliding-Window Seller Rate',
+      sub: 'Last 30 orders late rate',
       value: `${latePct}%`,
       stat1Label: 'Merchants',
       stat1Value: '3,095',
       stat2Label: 'High Delay',
       stat2Value: '238',
       chartVariant: 'mixed' as const,
+    },
+    {
+      bg: 'bg-[#bbf7d0]', // Soft Green
+      borderColor: 'border-green-300/60',
+      icon: AlertTriangle,
+      label: 'Category Lag Z-Score',
+      sub: 'Statistical outliers (>2σ)',
+      value: `${anomalyPct}%`,
+      stat1Label: 'Flagged',
+      stat1Value: anomalyCount.toLocaleString(),
+      stat2Label: 'Standard',
+      stat2Value: (total - anomalyCount).toLocaleString(),
+      chartVariant: 'red' as const,
     },
   ]
 
