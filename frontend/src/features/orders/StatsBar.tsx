@@ -45,8 +45,8 @@ export const StatsBar: React.FC = () => {
       bg: 'bg-[#bae6fd]', // Soft Blue
       borderColor: 'border-sky-300/60',
       icon: TrendingUp,
-      label: 'Sliding-Window Seller Rate',
-      sub: 'Last 30 orders late rate',
+      label: 'Merchant Delay Rate',
+      sub: 'Recent seller performance',
       value: `${latePct}%`,
       stat1Label: 'Merchants',
       stat1Value: '3,095',
@@ -58,8 +58,8 @@ export const StatsBar: React.FC = () => {
       bg: 'bg-[#bbf7d0]', // Soft Green
       borderColor: 'border-green-300/60',
       icon: AlertTriangle,
-      label: 'Category Lag Z-Score',
-      sub: 'Statistical outliers (>2σ)',
+      label: 'Transit Discrepancies',
+      sub: 'Unusual fulfillment lag',
       value: `${anomalyPct}%`,
       stat1Label: 'Flagged',
       stat1Value: anomalyCount.toLocaleString(),
