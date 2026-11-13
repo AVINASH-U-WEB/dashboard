@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   LayoutDashboard,
-  ShoppingBag,
   Ticket,
   UserCheck,
   ShieldAlert,
@@ -121,17 +120,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <NavItem
               icon={LayoutDashboard}
               label="Dashboard"
-              active={activePage === 'dashboard'}
+              count="99.4k"
+              active={activePage === 'dashboard' || activePage === 'ledger'}
               collapsed={isCollapsed}
               onClick={() => onNavigate('dashboard')}
-            />
-            <NavItem
-              icon={ShoppingBag}
-              label="Orders Ledger"
-              count="99.4k"
-              active={activePage === 'ledger'}
-              collapsed={isCollapsed}
-              onClick={() => onNavigate('ledger')}
             />
             {/* 1. Ticketing Module (Write Layer) */}
             <NavItem
