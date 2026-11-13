@@ -27,57 +27,69 @@ export const Dashboard: React.FC = () => {
   const orders = data?.data ?? []
   const meta = data?.meta
 
-  const handleStatusChange = (s: string) => { setSelectedStatus(s); setCurrentPage(1) }
-  const handleFromDateChange = (v: string) => { setFromDate(v); setCurrentPage(1) }
-  const handleToDateChange = (v: string) => { setToDate(v); setCurrentPage(1) }
-  const handleToggleAnomaly = () => { setIsAnomaly(a => !a); setCurrentPage(1) }
-  const handleToggleLate = () => { setIsLate(l => !l); setCurrentPage(1) }
+  const handleStatusChange = (s: string) => {
+    setSelectedStatus(s)
+    setCurrentPage(1)
+  }
+  const handleFromDateChange = (v: string) => {
+    setFromDate(v)
+    setCurrentPage(1)
+  }
+  const handleToDateChange = (v: string) => {
+    setToDate(v)
+    setCurrentPage(1)
+  }
+  const handleToggleAnomaly = () => {
+    setIsAnomaly((a) => !a)
+    setCurrentPage(1)
+  }
+  const handleToggleLate = () => {
+    setIsLate((l) => !l)
+    setCurrentPage(1)
+  }
   const handleResetFilters = () => {
-    setSelectedStatus('all'); setFromDate(''); setToDate('')
-    setIsAnomaly(false); setIsLate(false); setCurrentPage(1)
+    setSelectedStatus('all')
+    setFromDate('')
+    setToDate('')
+    setIsAnomaly(false)
+    setIsLate(false)
+    setCurrentPage(1)
   }
 
   return (
-    <div className="pb-10">
-      {/* Page heading */}
+    <div className="px-8 pb-12 space-y-6 max-w-[1600px] mx-auto">
+      {/* 1. Header with greeting and live indicators */}
       <HeroSection />
 
-      {/* Two-column body: left = KPI cards, right = table */}
-      <div className="mt-6 px-6 flex gap-5 items-start">
+      {/* 2. 4 Intelly-style Colorful KPI Cards */}
+      <StatsBar />
 
-        {/* ── LEFT COLUMN: stacked KPI cards (fixed width) ── */}
-        <div className="w-64 shrink-0">
-          <StatsBar />
-        </div>
+      {/* 3. Filter Bar */}
+      <FilterBar
+        fromDate={fromDate}
+        toDate={toDate}
+        isAnomaly={isAnomaly}
+        isLate={isLate}
+        onFromDateChange={handleFromDateChange}
+        onToDateChange={handleToDateChange}
+        onToggleAnomaly={handleToggleAnomaly}
+        onToggleLate={handleToggleLate}
+        onReset={handleResetFilters}
+        totalCount={meta?.total}
+      />
 
-        {/* ── RIGHT COLUMN: filter + table ── */}
-        <div className="flex-1 min-w-0 flex flex-col gap-4">
-          <FilterBar
-            fromDate={fromDate}
-            toDate={toDate}
-            isAnomaly={isAnomaly}
-            isLate={isLate}
-            onFromDateChange={handleFromDateChange}
-            onToDateChange={handleToDateChange}
-            onToggleAnomaly={handleToggleAnomaly}
-            onToggleLate={handleToggleLate}
-            onReset={handleResetFilters}
-            totalCount={meta?.total}
-          />
-
-          <OrderTable
-            orders={orders}
-            meta={meta}
-            isLoading={isLoading}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            selectedStatus={selectedStatus}
-            onStatusChange={handleStatusChange}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={setPageSize}
-          />
-        </div>
-      </div>
+      {/* 4. Full Orders Ledger Table with status pills & numbered pagination */}
+      <OrderTable
+        orders={orders}
+        meta={meta}
+        isLoading={isLoading}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        selectedStatus={selectedStatus}
+        onStatusChange={handleStatusChange}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={setPageSize}
+      />
     </div>
   )
 }
