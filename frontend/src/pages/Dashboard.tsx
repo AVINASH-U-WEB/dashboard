@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { HeroSection } from '../components/HeroSection'
-import { StatusTabBar } from '../features/orders/StatusTabBar'
 import { StatsBar } from '../features/orders/StatsBar'
 import { FilterBar } from '../features/orders/FilterBar'
 import { OrderTable } from '../features/orders/OrderTable'
@@ -28,83 +27,56 @@ export const Dashboard: React.FC = () => {
   const orders = data?.data ?? []
   const meta = data?.meta
 
-  const handleStatusChange = (status: string) => {
-    setSelectedStatus(status)
-    setCurrentPage(1)
-  }
-
-  const handleFromDateChange = (val: string) => {
-    setFromDate(val)
-    setCurrentPage(1)
-  }
-
-  const handleToDateChange = (val: string) => {
-    setToDate(val)
-    setCurrentPage(1)
-  }
-
-  const handleToggleAnomaly = () => {
-    setIsAnomaly(!isAnomaly)
-    setCurrentPage(1)
-  }
-
-  const handleToggleLate = () => {
-    setIsLate(!isLate)
-    setCurrentPage(1)
-  }
-
+  const handleStatusChange = (s: string) => { setSelectedStatus(s); setCurrentPage(1) }
+  const handleFromDateChange = (v: string) => { setFromDate(v); setCurrentPage(1) }
+  const handleToDateChange = (v: string) => { setToDate(v); setCurrentPage(1) }
+  const handleToggleAnomaly = () => { setIsAnomaly(a => !a); setCurrentPage(1) }
+  const handleToggleLate = () => { setIsLate(l => !l); setCurrentPage(1) }
   const handleResetFilters = () => {
-    setSelectedStatus('all')
-    setFromDate('')
-    setToDate('')
-    setIsAnomaly(false)
-    setIsLate(false)
-    setCurrentPage(1)
+    setSelectedStatus('all'); setFromDate(''); setToDate('')
+    setIsAnomaly(false); setIsLate(false); setCurrentPage(1)
   }
 
   return (
-    <div className="space-y-5 pb-8">
-      {/* 1. Greeting */}
+    <div className="pb-10">
+      {/* Page heading */}
       <HeroSection />
 
-      {/* 2. Status Pill Tabs */}
-      <StatusTabBar
-        selectedStatus={selectedStatus}
-        onSelectStatus={handleStatusChange}
-      />
+      {/* Two-column body: left = KPI cards, right = table */}
+      <div className="mt-6 px-6 flex gap-5 items-start">
 
-      {/* 3. KPI Cards */}
-      <div className="px-6">
-        <StatsBar />
-      </div>
+        {/* ── LEFT COLUMN: stacked KPI cards (fixed width) ── */}
+        <div className="w-64 shrink-0">
+          <StatsBar />
+        </div>
 
-      {/* 4. Filter Bar */}
-      <div className="px-6">
-        <FilterBar
-          fromDate={fromDate}
-          toDate={toDate}
-          isAnomaly={isAnomaly}
-          isLate={isLate}
-          onFromDateChange={handleFromDateChange}
-          onToDateChange={handleToDateChange}
-          onToggleAnomaly={handleToggleAnomaly}
-          onToggleLate={handleToggleLate}
-          onReset={handleResetFilters}
-          totalCount={meta?.total}
-        />
-      </div>
+        {/* ── RIGHT COLUMN: filter + table ── */}
+        <div className="flex-1 min-w-0 flex flex-col gap-4">
+          <FilterBar
+            fromDate={fromDate}
+            toDate={toDate}
+            isAnomaly={isAnomaly}
+            isLate={isLate}
+            onFromDateChange={handleFromDateChange}
+            onToDateChange={handleToDateChange}
+            onToggleAnomaly={handleToggleAnomaly}
+            onToggleLate={handleToggleLate}
+            onReset={handleResetFilters}
+            totalCount={meta?.total}
+          />
 
-      {/* 5. Orders Table */}
-      <div className="px-6">
-        <OrderTable
-          orders={orders}
-          meta={meta}
-          isLoading={isLoading}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
-        />
+          <OrderTable
+            orders={orders}
+            meta={meta}
+            isLoading={isLoading}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            selectedStatus={selectedStatus}
+            onStatusChange={handleStatusChange}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+          />
+        </div>
       </div>
     </div>
   )
