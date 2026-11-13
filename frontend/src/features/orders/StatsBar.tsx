@@ -24,7 +24,7 @@ export const StatsBar: React.FC = () => {
       value: `${deliveredPct}%`,
       stat1Label: 'Delivered',
       stat1Value: deliveredCount.toLocaleString(),
-      stat2Label: 'In-Transit',
+      stat2Label: 'Shipped',
       stat2Value: (stats?.by_status?.shipped ?? 1107).toLocaleString(),
       chartVariant: 'green' as const,
     },

@@ -15,8 +15,8 @@ export const StatusChip: React.FC<StatusChipProps> = ({ status }) => {
     style = 'bg-pink-100 text-pink-700'
     label = 'Delivered'
   } else if (norm === 'shipped') {
-    style = 'bg-sky-100 text-sky-700'
-    label = 'In-transit'
+    style = 'bg-sky-100 text-sky-800'
+    label = 'Shipped'
   } else if (norm === 'canceled') {
     style = 'bg-rose-100 text-rose-700'
     label = 'Canceled'

@@ -151,7 +151,7 @@ def get_stats(store: OrderMemoryStore = Depends(get_store)) -> StatsResponse:
 
 @router.get("/search", response_model=SearchResponse)
 def search_orders(
-    q: str = Query(..., min_length=1),
+    q: str = Query(..., min_length=1, max_length=200),
     limit: int = Query(20, ge=1, le=100),
     store: OrderMemoryStore = Depends(get_store),
     search_index: SearchIndex = Depends(get_search_index),

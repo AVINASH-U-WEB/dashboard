@@ -27,7 +27,7 @@ interface OrderTableProps {
 const STATUS_TABS = [
   { id: 'all', label: 'All Orders' },
   { id: 'delivered', label: 'Delivered' },
-  { id: 'shipped', label: 'In-Transit' },
+  { id: 'shipped', label: 'Shipped (In-Transit)' },
   { id: 'processing', label: 'Processing' },
   { id: 'canceled', label: 'Canceled' },
   { id: 'invoiced', label: 'Invoiced' },
@@ -218,12 +218,17 @@ export const OrderTable: React.FC<OrderTableProps> = ({
                       </div>
                     </td>
 
-                    {/* Category */}
+                    {/* Category & Shipping Fee */}
                     <td
-                      className="py-3.5 px-4 capitalize text-gray-600 truncate max-w-[140px] font-medium"
+                      className="py-3.5 px-4 max-w-[150px]"
                       title={order.product_category_name || ''}
                     >
-                      {order.product_category_name?.replace(/_/g, ' ') || 'General'}
+                      <p className="capitalize text-gray-700 font-semibold truncate text-[11px]">
+                        {order.product_category_name?.replace(/_/g, ' ') || 'General'}
+                      </p>
+                      <p className="text-[10px] text-gray-400 font-medium">
+                        Shipping: R$ {order.freight_value ? order.freight_value.toFixed(2) : '0.00'}
+                      </p>
                     </td>
 
                     {/* Fulfillment Lag */}

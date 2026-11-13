@@ -55,6 +55,16 @@ export const HeroSection: React.FC = () => {
               <p className="text-xs font-black text-[#14141f] mt-0.5">3,095</p>
             </div>
           </div>
+
+          <div className="flex items-center gap-2 px-3.5 py-2 bg-white rounded-2xl border border-gray-200/80 shadow-xs">
+            <div className="w-7 h-7 rounded-lg bg-sky-100 flex items-center justify-center text-sky-800">
+              <Truck className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <p className="text-[10px] text-gray-400 font-semibold uppercase leading-none">Active Shipping</p>
+              <p className="text-xs font-black text-[#14141f] mt-0.5">{(stats?.by_status?.shipped ?? 1107).toLocaleString()}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
