@@ -58,3 +58,9 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Python testing and coverage
+.coverage
+.coverage.*
+.pytest_cache/
+htmlcov/
