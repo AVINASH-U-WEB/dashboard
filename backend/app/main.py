@@ -14,6 +14,7 @@ from app.core.lru_filter import set_store
 from app.core.memory_store import OrderMemoryStore
 from app.core.search_index import SearchIndex
 import app.api.v1.routes.orders as orders_module
+from app.api.v1.routes.customers import router as customers_router
 
 from app.api.v1.routes.orders import router as orders_router
 from app.api.v1.routes.tickets import router as tickets_router
@@ -105,6 +106,7 @@ app.include_router(
     prefix="/api/v1"
 )
 
+app.include_router(customers_router, prefix="/api/v1")
 
 # ---------------------------------------------------------------------------
 # Health
