@@ -6,14 +6,19 @@ Run from the backend directory:
     python -m seeds.seed_tickets
 """
 
-from database import get_db_connection
+import sqlite3
+
+from app.config import settings
 
 
 def seed_tickets():
-    connection = get_db_connection()
+    # Connect directly to the SQLite database.
+    connection = sqlite3.connect(settings.db_path)
+    connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA foreign_keys = ON")
 
     try:
-        # Fetch 10 valid order IDs from the existing Olist orders table
+        # Fetch 10 valid order IDs from the existing Olist orders table.
         orders = connection.execute(
             """
             SELECT order_id
@@ -27,7 +32,7 @@ def seed_tickets():
             print("At least 10 existing orders are required.")
             return
 
-        # Prepare sample ticket records
+        # Prepare sample ticket records.
         sample_tickets = [
             {
                 "order_id": orders[0]["order_id"],
@@ -101,7 +106,7 @@ def seed_tickets():
             }
         ]
 
-        # Insert sample tickets into the database
+        # Insert sample tickets into the database.
         connection.executemany(
             """
             INSERT INTO tickets
@@ -114,9 +119,11 @@ def seed_tickets():
 
         connection.commit()
 
-        print(f"Successfully inserted {len(sample_tickets)} sample tickets.")
+        print(
+            f"Successfully inserted {len(sample_tickets)} sample tickets."
+        )
 
-        # Display all tickets currently in the database
+        # Display all tickets currently in the database.
         rows = connection.execute(
             """
             SELECT *
