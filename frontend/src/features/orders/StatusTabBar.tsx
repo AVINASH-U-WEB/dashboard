@@ -1,6 +1,6 @@
 import React from 'react'
 import { Package, Truck, CheckCircle2, XCircle, Clock, FileText } from 'lucide-react'
-import { useStats } from './useStats'
+import { useStats } from './hooks/useStats'
 
 interface StatusTabBarProps {
   selectedStatus: string

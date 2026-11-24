@@ -10,7 +10,7 @@ import {
   MapPin,
   AlertCircle,
 } from 'lucide-react'
-import { useStats } from './useStats'
+import { useStats } from './hooks/useStats'
 
 interface OrderTableProps {
   orders: Order[]

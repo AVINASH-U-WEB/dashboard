@@ -3,7 +3,7 @@ import { HeroSection } from '../components/HeroSection'
 import { StatsBar } from '../features/orders/StatsBar'
 import { FilterBar } from '../features/orders/FilterBar'
 import { OrderTable } from '../features/orders/OrderTable'
-import { useOrders } from '../features/orders/useOrders'
+import { useOrders } from '../features/orders/hooks/useOrders'
 import { Search, X } from 'lucide-react'
 
 interface DashboardProps {

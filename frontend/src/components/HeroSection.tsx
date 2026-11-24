@@ -1,6 +1,6 @@
 import React from 'react'
 import { Package, Truck, Users} from 'lucide-react'
-import { useStats } from '../features/orders/useStats'
+import { useStats } from '../features/orders/hooks/useStats'
 
 export const HeroSection: React.FC = () => {
   const { data: stats } = useStats()
