@@ -1,5 +1,5 @@
 import React from 'react'
-import { Order, PaginationMeta } from './types/order'
+import { Order, PaginationMeta } from '../types/order'
 import { StatusChip } from './StatusChip'
 import { AnomalyBadge } from './AnomalyBadge'
 import {
@@ -10,7 +10,7 @@ import {
   MapPin,
   AlertCircle,
 } from 'lucide-react'
-import { useStats } from './hooks/useStats'
+import { useStats } from '../hooks/useStats'
 
 interface OrderTableProps {
   orders: Order[]

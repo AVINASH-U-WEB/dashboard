@@ -1,5 +1,5 @@
 import React from 'react'
-import { OrderStatus } from './types/order'
+import { OrderStatus } from '../types/order'
 
 interface StatusChipProps {
   status: OrderStatus | string

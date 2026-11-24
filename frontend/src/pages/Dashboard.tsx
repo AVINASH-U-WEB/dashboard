@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { HeroSection } from '../components/HeroSection'
-import { StatsBar } from '../features/orders/StatsBar'
-import { FilterBar } from '../features/orders/FilterBar'
-import { OrderTable } from '../features/orders/OrderTable'
+import { HeroSection } from '../features/orders/components/HeroSection'
+import { StatsBar } from '../features/orders/components/StatsBar'
+import { FilterBar } from '../features/orders/components/FilterBar'
+import { OrderTable } from '../features/orders/components/OrderTable'
 import { useOrders } from '../features/orders/hooks/useOrders'
 import { Search, X } from 'lucide-react'
 
