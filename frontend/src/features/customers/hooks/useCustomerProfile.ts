@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchCustomerProfile } from '../../../api/customersApi'
+import { fetchCustomerProfile } from '../api/customersApi'
 
 export function useCustomerProfile(customerId: string | null) {
   return useQuery({

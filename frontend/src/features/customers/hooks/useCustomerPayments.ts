@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchCustomerPayments } from '../../../api/customersApi'
+import { fetchCustomerPayments } from '../api/customersApi'
 
 export function useCustomerPayments(customerId: string | null) {
   return useQuery({

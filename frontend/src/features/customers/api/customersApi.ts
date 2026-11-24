@@ -6,7 +6,7 @@ import type {
   CustomerOrdersResponse,
   CustomerPaymentsResponse,
 } from '../types/customer'
-import { apiClient } from '../shared/api/client'
+import { apiClient } from '../../../shared/api/client'
 
 function isAbortSignal(value: unknown): value is AbortSignal {
   return (

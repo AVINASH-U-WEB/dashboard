@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchCustomerSummary } from '../../../api/customersApi'
+import { fetchCustomerSummary } from '../api/customersApi'
 
 export function useCustomerSummary(customerId: string | null) {
   return useQuery({

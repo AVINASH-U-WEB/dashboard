@@ -10,7 +10,7 @@ import {
   X,
 } from 'lucide-react'
 
-import { useCustomers } from '../features/customers/hooks/useCustomers'
+import { useCustomers } from '../hooks/useCustomers'
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('pt-BR', {

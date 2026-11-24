@@ -1,7 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query'
-import { fetchCustomers } from '../../../api/customersApi'
-import type { CustomersQueryParams } from '../../../types/customer'
+import { fetchCustomers } from '../api/customersApi'
+import type { CustomersQueryParams } from '../types/customer'
 
 export function useCustomers(params: CustomersQueryParams = {}) {
   return useQuery({
