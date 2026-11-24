@@ -1,18 +1,34 @@
 import type {
   CustomersQueryParams,
   CustomersResponse,
-} from '../types/customer'
-import type {
   CustomerProfile,
   CustomerSummary,
   CustomerOrdersResponse,
   CustomerPaymentsResponse,
 } from '../types/customer'
+import { apiClient } from '../shared/api/client'
 
-const API_BASE = 'http://localhost:8000/api/v1'
+function isAbortSignal(value: unknown): value is AbortSignal {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'aborted' in value &&
+    typeof (value as AbortSignal).addEventListener === 'function'
+  )
+}
+
+function extractSignal(options?: AbortSignal | { signal?: AbortSignal }): AbortSignal | undefined {
+  if (!options) return undefined
+  if (isAbortSignal(options)) return options
+  if (typeof options === 'object' && 'signal' in options && isAbortSignal(options.signal)) {
+    return options.signal
+  }
+  return undefined
+}
 
 export async function fetchCustomers(
   params: CustomersQueryParams = {},
+  options?: AbortSignal | { signal?: AbortSignal }
 ): Promise<CustomersResponse> {
   const query = new URLSearchParams()
 
@@ -35,79 +51,58 @@ export async function fetchCustomers(
     query.append('sort_order', params.sort_order)
   }
 
-  const response = await fetch(
-    `${API_BASE}/customers?${query.toString()}`,
-  )
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch customers: ${response.status} ${response.statusText}`,
-    )
-  }
-
-  return response.json()
+  return apiClient.get<CustomersResponse>('/customers', {
+    params: query,
+    signal: extractSignal(options),
+  })
 }
-
 
 export async function fetchCustomerProfile(
   customerId: string,
+  options?: AbortSignal | { signal?: AbortSignal }
 ): Promise<CustomerProfile> {
-  const response = await fetch(
-    `${API_BASE}/customers/${encodeURIComponent(customerId)}`,
-  )
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch customer profile: ${response.status}`)
-  }
-
-  return response.json()
+  return apiClient.get<CustomerProfile>(`/customers/${encodeURIComponent(customerId)}`, {
+    signal: extractSignal(options),
+  })
 }
 
 export async function fetchCustomerSummary(
   customerId: string,
+  options?: AbortSignal | { signal?: AbortSignal }
 ): Promise<CustomerSummary> {
-  const response = await fetch(
-    `${API_BASE}/customers/${encodeURIComponent(customerId)}/summary`,
-  )
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch customer summary: ${response.status}`)
-  }
-
-  return response.json()
+  return apiClient.get<CustomerSummary>(`/customers/${encodeURIComponent(customerId)}/summary`, {
+    signal: extractSignal(options),
+  })
 }
 
 export async function fetchCustomerOrders(
   customerId: string,
   page = 1,
   limit = 10,
+  options?: AbortSignal | { signal?: AbortSignal }
 ): Promise<CustomerOrdersResponse> {
   const query = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   })
 
-  const response = await fetch(
-    `${API_BASE}/customers/${encodeURIComponent(customerId)}/orders?${query}`,
+  return apiClient.get<CustomerOrdersResponse>(
+    `/customers/${encodeURIComponent(customerId)}/orders`,
+    {
+      params: query,
+      signal: extractSignal(options),
+    }
   )
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch customer orders: ${response.status}`)
-  }
-
-  return response.json()
 }
 
 export async function fetchCustomerPayments(
   customerId: string,
+  options?: AbortSignal | { signal?: AbortSignal }
 ): Promise<CustomerPaymentsResponse> {
-  const response = await fetch(
-    `${API_BASE}/customers/${encodeURIComponent(customerId)}/payments`,
+  return apiClient.get<CustomerPaymentsResponse>(
+    `/customers/${encodeURIComponent(customerId)}/payments`,
+    {
+      signal: extractSignal(options),
+    }
   )
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch customer payments: ${response.status}`)
-  }
-
-  return response.json()
 }

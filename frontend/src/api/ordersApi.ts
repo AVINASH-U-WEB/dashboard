@@ -1,8 +1,28 @@
 import { OrdersQueryParams, OrdersResponse, Order, StatsResponse, SearchResponse } from '../types/order'
+import { apiClient } from '../shared/api/client'
 
-const API_BASE = 'http://localhost:8000/api/v1'
+function isAbortSignal(value: unknown): value is AbortSignal {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'aborted' in value &&
+    typeof (value as AbortSignal).addEventListener === 'function'
+  )
+}
 
-export async function fetchOrders(params: OrdersQueryParams = {}): Promise<OrdersResponse> {
+function extractSignal(options?: AbortSignal | { signal?: AbortSignal }): AbortSignal | undefined {
+  if (!options) return undefined
+  if (isAbortSignal(options)) return options
+  if (typeof options === 'object' && 'signal' in options && isAbortSignal(options.signal)) {
+    return options.signal
+  }
+  return undefined
+}
+
+export async function fetchOrders(
+  params: OrdersQueryParams = {},
+  options?: AbortSignal | { signal?: AbortSignal }
+): Promise<OrdersResponse> {
   const query = new URLSearchParams()
   if (params.status && params.status !== 'all') query.append('status', params.status)
   if (params.from_date) query.append('from_date', params.from_date)
@@ -13,27 +33,37 @@ export async function fetchOrders(params: OrdersQueryParams = {}): Promise<Order
   if (params.cursor) query.append('cursor', params.cursor)
   if (params.limit) query.append('limit', String(params.limit))
 
-  const res = await fetch(`${API_BASE}/orders?${query.toString()}`)
-  if (!res.ok) throw new Error(`Failed to fetch orders: ${res.statusText}`)
-  return res.json()
+  return apiClient.get<OrdersResponse>('/orders', {
+    params: query,
+    signal: extractSignal(options),
+  })
 }
 
-export async function fetchStats(): Promise<StatsResponse> {
-  const res = await fetch(`${API_BASE}/orders/stats`)
-  if (!res.ok) throw new Error(`Failed to fetch stats: ${res.statusText}`)
-  return res.json()
+export async function fetchStats(
+  options?: AbortSignal | { signal?: AbortSignal }
+): Promise<StatsResponse> {
+  return apiClient.get<StatsResponse>('/orders/stats', {
+    signal: extractSignal(options),
+  })
 }
 
-export async function searchOrders(q: string, limit: number = 20): Promise<SearchResponse> {
+export async function searchOrders(
+  q: string,
+  limit: number = 20,
+  options?: AbortSignal | { signal?: AbortSignal }
+): Promise<SearchResponse> {
   const query = new URLSearchParams({ q, limit: String(limit) })
-  const res = await fetch(`${API_BASE}/orders/search?${query.toString()}`)
-  if (!res.ok) throw new Error(`Failed to search orders: ${res.statusText}`)
-  return res.json()
+  return apiClient.get<SearchResponse>('/orders/search', {
+    params: query,
+    signal: extractSignal(options),
+  })
 }
 
-export async function fetchOrderById(id: string): Promise<Order> {
-  const res = await fetch(`${API_BASE}/orders/${id}`)
-  if (!res.ok) throw new Error(`Failed to fetch order ${id}: ${res.statusText}`)
-  return res.json()
+export async function fetchOrderById(
+  id: string,
+  options?: AbortSignal | { signal?: AbortSignal }
+): Promise<Order> {
+  return apiClient.get<Order>(`/orders/${encodeURIComponent(id)}`, {
+    signal: extractSignal(options),
+  })
 }
-
