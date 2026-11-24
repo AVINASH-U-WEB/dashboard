@@ -10,4 +10,3 @@ export function useStats() {
     refetchInterval: 60_000,
   })
 }
-

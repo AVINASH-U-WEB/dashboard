@@ -118,9 +118,9 @@ def write_source_tables(
     db_path: str = "olist.db",
 ) -> dict[str, int]:
     """
-    Refresh normalized customer source tables.
+    Refresh normalized customer source tables and customer directory summary.
 
-    All source-table changes occur in one transaction.
+    All source-table and summary changes occur in one transaction.
     The existing reporting 'orders' table is never modified.
     """
 
@@ -151,6 +151,10 @@ def write_source_tables(
         conn.execute("PRAGMA foreign_keys = ON")
 
         with conn:
+            # ---------------------------------------------------------
+            # 1. Create normalized source tables
+            # ---------------------------------------------------------
+
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS customers (
                     customer_id TEXT PRIMARY KEY,
@@ -190,6 +194,34 @@ def write_source_tables(
                         ON DELETE CASCADE
                 )
             """)
+
+            # ---------------------------------------------------------
+            # 2. Create customer directory summary table
+            # ---------------------------------------------------------
+
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS customer_directory_summary (
+                    customer_unique_id TEXT PRIMARY KEY,
+                    customer_city TEXT,
+                    customer_state TEXT,
+                    customer_zip_code_prefix TEXT,
+                    record_count INTEGER NOT NULL DEFAULT 0,
+                    total_orders INTEGER NOT NULL DEFAULT 0,
+                    lifetime_spend REAL NOT NULL DEFAULT 0,
+                    average_order_value REAL NOT NULL DEFAULT 0,
+                    first_purchase TEXT,
+                    last_purchase TEXT,
+                    customer_type TEXT NOT NULL,
+                    last_order_status TEXT
+                )
+            """)
+
+            # ---------------------------------------------------------
+            # 3. Refresh source data
+            # ---------------------------------------------------------
+
+            # Delete derived summary before refreshing its source data.
+            conn.execute("DELETE FROM customer_directory_summary")
 
             # Delete child records before parent records.
             conn.execute("DELETE FROM order_payments")
@@ -238,6 +270,143 @@ def write_source_tables(
                 _records(payments, PAYMENT_COLUMNS),
             )
 
+            # ---------------------------------------------------------
+            # 4. Build customer directory summary
+            # ---------------------------------------------------------
+
+            conn.execute("""
+                WITH payment_totals AS (
+                    SELECT
+                        order_id,
+                        SUM(payment_value) AS order_payment_total
+                    FROM order_payments
+                    GROUP BY order_id
+                ),
+
+                customer_orders AS (
+                    SELECT
+                        c.customer_unique_id,
+                        c.customer_id,
+                        c.customer_city,
+                        c.customer_state,
+                        c.customer_zip_code_prefix,
+
+                        so.order_id,
+                        so.order_status,
+                        so.order_purchase_timestamp,
+
+                        COALESCE(pt.order_payment_total, 0)
+                            AS order_payment_total,
+
+                        CASE
+                            WHEN pt.order_id IS NOT NULL THEN 1
+                            ELSE 0
+                        END AS has_payment
+
+                    FROM customers c
+
+                    LEFT JOIN source_orders so
+                        ON so.customer_id = c.customer_id
+
+                    LEFT JOIN payment_totals pt
+                        ON pt.order_id = so.order_id
+                ),
+
+                customer_summary AS (
+                    SELECT
+                        customer_unique_id,
+
+                        COUNT(DISTINCT customer_id) AS record_count,
+
+                        COUNT(DISTINCT order_id) AS total_orders,
+
+                        SUM(order_payment_total) AS lifetime_spend,
+
+                        SUM(has_payment) AS payment_order_count,
+
+                        MIN(order_purchase_timestamp) AS first_purchase,
+
+                        MAX(order_purchase_timestamp) AS last_purchase
+
+                    FROM customer_orders
+
+                    GROUP BY customer_unique_id
+                ),
+
+                ranked_locations AS (
+                    SELECT
+                        customer_unique_id,
+                        customer_city,
+                        customer_state,
+                        customer_zip_code_prefix,
+                        order_status,
+
+                        ROW_NUMBER() OVER (
+                            PARTITION BY customer_unique_id
+                            ORDER BY
+                                order_purchase_timestamp DESC,
+                                order_id DESC,
+                                customer_id DESC
+                        ) AS row_num
+
+                    FROM customer_orders
+                )
+
+                INSERT INTO customer_directory_summary (
+                    customer_unique_id,
+                    customer_city,
+                    customer_state,
+                    customer_zip_code_prefix,
+                    record_count,
+                    total_orders,
+                    lifetime_spend,
+                    average_order_value,
+                    first_purchase,
+                    last_purchase,
+                    customer_type,
+                    last_order_status
+                )
+
+                SELECT
+                    summary.customer_unique_id,
+
+                    location.customer_city,
+                    location.customer_state,
+                    location.customer_zip_code_prefix,
+
+                    summary.record_count,
+                    summary.total_orders,
+                    summary.lifetime_spend,
+
+                    CASE
+                        WHEN summary.payment_order_count > 0
+                        THEN summary.lifetime_spend
+                             / summary.payment_order_count
+                        ELSE 0
+                    END,
+
+                    summary.first_purchase,
+                    summary.last_purchase,
+
+                    CASE
+                        WHEN summary.total_orders <= 1 THEN 'New'
+                        ELSE 'Returning'
+                    END,
+
+                    location.order_status
+
+                FROM customer_summary summary
+
+                LEFT JOIN ranked_locations location
+                    ON location.customer_unique_id =
+                       summary.customer_unique_id
+                    AND location.row_num = 1
+            """)
+
+            # ---------------------------------------------------------
+            # 5. Create indexes
+            # ---------------------------------------------------------
+
             conn.execute("""
                 CREATE INDEX IF NOT EXISTS idx_customers_unique_id
                 ON customers(customer_unique_id)
@@ -257,6 +426,20 @@ def write_source_tables(
                 CREATE INDEX IF NOT EXISTS idx_payments_order
                 ON order_payments(order_id)
             """)
+
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_customer_summary_state
+                ON customer_directory_summary(customer_state)
+            """)
+
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_customer_summary_last_purchase
+                ON customer_directory_summary(last_purchase)
+            """)
+
+            # ---------------------------------------------------------
+            # 6. Validate foreign keys
+            # ---------------------------------------------------------
 
             violations = conn.execute(
                 "PRAGMA foreign_key_check"

@@ -1,22 +1,57 @@
 from fastapi import APIRouter, HTTPException, Query
-
+from typing import Literal
 from app.schemas.customer import (
     CustomerProfileOut,
     CustomerOrdersResponse,
     CustomerSummaryOut,
     CustomerPaymentsResponse,
+    CustomerDirectoryResponse
 )
 from app.services.customer_service import (
     get_customer_profile,
     get_customer_orders,
     get_customer_summary,
     get_customer_payments,
+    get_customers
 )
 
 router = APIRouter(
     prefix="/customers",
     tags=["customers"],
 )
+
+
+
+@router.get(
+    "",
+    response_model=CustomerDirectoryResponse,
+)
+def list_customers(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    search: str | None = Query(None, max_length=100),
+    state: str | None = Query(None, min_length=2, max_length=2),
+    sort_by: Literal[
+        "customer_unique_id",
+        "customer_city",
+        "total_orders",
+        "lifetime_spend",
+        "last_purchase",
+    ] = Query("last_purchase"),
+    sort_order: Literal["asc", "desc"] = Query("desc"),
+) -> CustomerDirectoryResponse:
+
+    result = get_customers(
+        page=page,
+        limit=limit,
+        search=search,
+        state=state,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
+
+    return CustomerDirectoryResponse(**result)
+
 
 
 @router.get(
