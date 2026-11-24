@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import { Ticket } from 'lucide-react'
-import { EmptyState } from '../shared/components/ui/EmptyState'
+import { EmptyState } from '../../../shared/components/ui/EmptyState'
 
 export const TicketsPage: FC = () => {
   return (
