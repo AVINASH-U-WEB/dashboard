@@ -1,50 +1,41 @@
-import { useState } from 'react'
-import { Sidebar } from './components/Sidebar'
+import type { FC } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { DashboardLayout, useDashboardContext } from './layouts/DashboardLayout'
 import { Dashboard } from './pages/Dashboard'
 import { Customers } from './pages/Customers'
-import { TopBar } from './layouts/TopBar'
+import { TicketsPage } from './pages/TicketsPage'
+import { SettingsPage } from './pages/SettingsPage'
+import { NotFoundPage } from './pages/NotFoundPage'
+
+interface DashboardRouteProps {
+  activePage: string
+}
+
+const DashboardRoute: FC<DashboardRouteProps> = ({ activePage }) => {
+  const { searchQuery, onSearchChange } = useDashboardContext()
+  return (
+    <Dashboard
+      activePage={activePage}
+      searchQuery={searchQuery}
+      onClearSearch={() => onSearchChange('')}
+    />
+  )
+}
 
 export default function App() {
-  const [activePage, setActivePage] = useState('dashboard')
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-
   return (
-    <div className="flex h-screen bg-[#f5f5f0] overflow-hidden font-sans">
-      {/* Sidebar */}
-      <Sidebar
-        activePage={activePage}
-        onNavigate={setActivePage}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
-      />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden">
-
-        {/* Top Bar */}
-        <TopBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          isSidebarCollapsed={isSidebarCollapsed}
-          onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
-        />
-
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto">
-
-          {activePage === 'customers' ? (
-            <Customers />
-          ) : (
-            <Dashboard
-              activePage={activePage}
-              searchQuery={searchQuery}
-              onClearSearch={() => setSearchQuery('')}
-            />
-          )}
-
-        </main>
-      </div>
-    </div>
+    <Routes>
+      <Route element={<DashboardLayout />}>
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<DashboardRoute activePage="dashboard" />} />
+        <Route path="/orders" element={<DashboardRoute activePage="ledger" />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/tickets" element={<TicketsPage />} />
+        <Route path="/sla" element={<DashboardRoute activePage="sla_escalations" />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   )
 }
