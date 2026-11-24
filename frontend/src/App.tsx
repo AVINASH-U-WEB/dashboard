@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { DashboardLayout, useDashboardContext } from './layouts/DashboardLayout'
-import { Dashboard } from './pages/Dashboard'
+import { Dashboard } from './features/orders/pages/Dashboard'
 import { Customers } from './pages/Customers'
 import { TicketsPage } from './pages/TicketsPage'
 import { SettingsPage } from './pages/SettingsPage'

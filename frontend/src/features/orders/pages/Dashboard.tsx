@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { HeroSection } from '../features/orders/components/HeroSection'
-import { StatsBar } from '../features/orders/components/StatsBar'
-import { FilterBar } from '../features/orders/components/FilterBar'
-import { OrderTable } from '../features/orders/components/OrderTable'
-import { useOrders } from '../features/orders/hooks/useOrders'
+import { HeroSection } from '../components/HeroSection'
+import { StatsBar } from '../components/StatsBar'
+import { FilterBar } from '../components/FilterBar'
+import { OrderTable } from '../components/OrderTable'
+import { useOrders } from '../hooks/useOrders'
 import { Search, X } from 'lucide-react'
 
 interface DashboardProps {
