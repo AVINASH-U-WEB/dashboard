@@ -1,6 +1,6 @@
 import React from 'react'
 import { CheckCircle2, Clock, AlertTriangle, TrendingUp, ArrowUpRight } from 'lucide-react'
-import { useStats } from './useStats'
+import { useStats } from '../hooks/useStats'
 import { MiniBarChart } from './MiniBarChart'
 
 export const StatsBar: React.FC = () => {

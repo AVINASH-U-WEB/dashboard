@@ -40,6 +40,8 @@ class CustomerSummaryOut(BaseModel):
     average_order_value: float
     first_purchase: str | None = None
     last_purchase: str | None = None
+    customer_type: str
+    last_order_status: str | None = None
 
 class CustomerPaymentMethodOut(BaseModel):
     payment_type: str
@@ -52,3 +54,28 @@ class CustomerPaymentsResponse(BaseModel):
     customer_unique_id: str
     total_payment_value: float
     payment_methods: list[CustomerPaymentMethodOut]
+
+
+class CustomerDirectoryItemOut(BaseModel):
+    customer_unique_id: str
+    customer_city: str | None = None
+    customer_state: str | None = None
+    customer_zip_code_prefix: str | None = None
+
+    record_count: int
+    total_orders: int
+    lifetime_spend: float
+    average_order_value: float
+
+    first_purchase: str | None = None
+    last_purchase: str | None = None
+    customer_type: str
+    last_order_status: str | None = None
+
+
+class CustomerDirectoryResponse(BaseModel):
+    items: list[CustomerDirectoryItemOut]
+    total: int
+    page: int
+    limit: int
+    total_pages: int

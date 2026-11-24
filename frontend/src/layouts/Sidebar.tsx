@@ -1,4 +1,5 @@
 import React from 'react'
+import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
   Ticket,
@@ -10,55 +11,69 @@ import {
   ChevronRight,
 } from 'lucide-react'
 
-interface SidebarProps {
-  activePage: string
-  onNavigate: (page: string) => void
+export interface SidebarProps {
+  activePage?: string
+  onNavigate?: (page: string) => void
   isCollapsed: boolean
   onToggleCollapse: () => void
 }
 
-const NavItem: React.FC<{
+interface NavItemProps {
+  to: string
+  end?: boolean
   icon: React.ElementType
   label: string
   count?: string | number
-  active: boolean
   collapsed: boolean
-  onClick: () => void
-}> = ({ icon: Icon, label, count, active, collapsed, onClick }) => (
-  <button
-    onClick={onClick}
+}
+
+const NavItem: React.FC<NavItemProps> = ({
+  to,
+  end,
+  icon: Icon,
+  label,
+  count,
+  collapsed,
+}) => (
+  <NavLink
+    to={to}
+    end={end}
     title={collapsed ? label : undefined}
-    className={`w-full flex items-center ${
-      collapsed ? 'justify-center px-0' : 'justify-between px-3.5'
-    } py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
-      active
-        ? 'bg-white/15 text-white font-semibold shadow-xs'
-        : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
-    }`}
+    className={({ isActive }) =>
+      `w-full flex items-center ${
+        collapsed ? 'justify-center px-0' : 'justify-between px-3.5'
+      } py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+        isActive
+          ? 'bg-white/15 text-white font-semibold shadow-xs'
+          : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+      }`
+    }
   >
-    <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} min-w-0`}>
-      <Icon
-        className={`w-4 h-4 shrink-0 transition-colors ${
-          active ? 'text-yellow-400' : 'text-gray-400'
-        }`}
-      />
-      {!collapsed && <span className="truncate">{label}</span>}
-    </div>
-    {!collapsed && count && (
-      <span
-        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-          active ? 'bg-yellow-400/20 text-yellow-300' : 'bg-white/5 text-gray-500'
-        }`}
-      >
-        {count}
-      </span>
+    {({ isActive }) => (
+      <>
+        <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} min-w-0`}>
+          <Icon
+            className={`w-4 h-4 shrink-0 transition-colors ${
+              isActive ? 'text-yellow-400' : 'text-gray-400'
+            }`}
+          />
+          {!collapsed && <span className="truncate">{label}</span>}
+        </div>
+        {!collapsed && count && (
+          <span
+            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+              isActive ? 'bg-yellow-400/20 text-yellow-300' : 'bg-white/5 text-gray-500'
+            }`}
+          >
+            {count}
+          </span>
+        )}
+      </>
     )}
-  </button>
+  </NavLink>
 )
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  activePage,
-  onNavigate,
   isCollapsed,
   onToggleCollapse,
 }) => {
@@ -118,37 +133,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
           <div className="space-y-1">
             <NavItem
+              to="/dashboard"
+              end
               icon={LayoutDashboard}
               label="Dashboard"
               count="99.4k"
-              active={activePage === 'dashboard' || activePage === 'ledger'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('dashboard')}
             />
             {/* 1. Ticketing Module (Write Layer) */}
             <NavItem
+              to="/tickets"
               icon={Ticket}
               label="Ticketing Module (Write Layer)"
-              active={activePage === 'tickets'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('tickets')}
             />
             {/* 2. Customer Profile & Order History */}
             <NavItem
+              to="/customers"
               icon={UserCheck}
               label="Customer Profile & Order History"
-              active={activePage === 'customers'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('customers')}
             />
             {/* 3. SLA & Escalation Metrics */}
             <NavItem
+              to="/sla"
               icon={ShieldAlert}
               label="SLA & Escalation Metrics"
               count="7,861"
-              active={activePage === 'sla_escalations'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('sla_escalations')}
             />
           </div>
         </div>
@@ -161,18 +173,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
           <div className="space-y-1">
             <NavItem
+              to="/orders"
               icon={Database}
               label="SQLite Database"
-              active={activePage === 'database'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('dashboard')}
             />
             <NavItem
+              to="/settings"
               icon={Settings}
               label="Settings"
-              active={activePage === 'settings'}
               collapsed={isCollapsed}
-              onClick={() => onNavigate('dashboard')}
             />
           </div>
         </div>
