@@ -1,5 +1,5 @@
 import { OrdersQueryParams, OrdersResponse, Order, StatsResponse, SearchResponse } from '../types/order'
-import { apiClient } from '../shared/api/client'
+import { apiClient } from '../../../shared/api/client'
 
 function isAbortSignal(value: unknown): value is AbortSignal {
   return (

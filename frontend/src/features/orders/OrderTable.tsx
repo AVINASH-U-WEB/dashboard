@@ -1,5 +1,5 @@
 import React from 'react'
-import { Order, PaginationMeta } from '../../types/order'
+import { Order, PaginationMeta } from './types/order'
 import { StatusChip } from './StatusChip'
 import { AnomalyBadge } from './AnomalyBadge'
 import {
