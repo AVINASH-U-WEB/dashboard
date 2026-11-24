@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { useState } from 'react'
 import { Outlet, useOutletContext } from 'react-router-dom'
-import { Sidebar } from '../components/Sidebar'
+import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 
 export interface DashboardOutletContext {
