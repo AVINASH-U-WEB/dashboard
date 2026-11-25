@@ -1,4 +1,6 @@
+
 import sqlite3
+import time
 
 from app.config import settings
 
@@ -50,6 +52,7 @@ def get_customer_profile(customer_unique_id: str) -> dict | None:
     finally:
         conn.close()
 
+
 def get_customer_orders(
     customer_unique_id: str,
     page: int,
@@ -59,7 +62,6 @@ def get_customer_orders(
     conn.row_factory = sqlite3.Row
 
     try:
-        # Check whether this customer exists.
         customer = conn.execute(
             """
             SELECT 1
@@ -73,7 +75,6 @@ def get_customer_orders(
         if customer is None:
             return None
 
-        # Count all orders belonging to this customer.
         total_orders = conn.execute(
             """
             SELECT COUNT(*)
@@ -85,10 +86,8 @@ def get_customer_orders(
             (customer_unique_id,),
         ).fetchone()[0]
 
-        # Calculate the number of records to skip.
         offset = (page - 1) * limit
 
-        # Fetch the requested page.
         rows = conn.execute(
             """
             SELECT
@@ -129,12 +128,12 @@ def get_customer_orders(
     finally:
         conn.close()
 
+
 def get_customer_summary(customer_unique_id: str) -> dict | None:
     conn = sqlite3.connect(settings.db_path)
     conn.row_factory = sqlite3.Row
 
     try:
-        # First, check whether the customer exists.
         customer = conn.execute(
             """
             SELECT 1
@@ -148,33 +147,70 @@ def get_customer_summary(customer_unique_id: str) -> dict | None:
         if customer is None:
             return None
 
-        # Calculate one payment total per order, then summarize
-        # all orders belonging to this customer.
         row = conn.execute(
             """
             WITH customer_orders AS (
                 SELECT
                     c.customer_unique_id,
                     o.order_id,
+                    o.order_status,
                     o.order_purchase_timestamp
                 FROM customers AS c
                 INNER JOIN source_orders AS o
                     ON c.customer_id = o.customer_id
                 WHERE c.customer_unique_id = ?
             ),
+
             payment_totals AS (
                 SELECT
                     order_id,
                     SUM(payment_value) AS order_total
                 FROM order_payments
                 GROUP BY order_id
+            ),
+
+            ranked_orders AS (
+                SELECT
+                    order_status,
+                    ROW_NUMBER() OVER (
+                        ORDER BY
+                            order_purchase_timestamp DESC,
+                            order_id DESC
+                    ) AS order_rank
+                FROM customer_orders
             )
+
             SELECT
                 COUNT(co.order_id) AS total_orders,
-                COALESCE(SUM(pt.order_total), 0.0) AS lifetime_spend,
-                MIN(co.order_purchase_timestamp) AS first_purchase,
-                MAX(co.order_purchase_timestamp) AS last_purchase
+
+                COALESCE(
+                    SUM(pt.order_total),
+                    0.0
+                ) AS lifetime_spend,
+
+                COUNT(
+                    DISTINCT CASE
+                        WHEN pt.order_total IS NOT NULL
+                        THEN co.order_id
+                    END
+                ) AS payment_order_count,
+
+                MIN(
+                    co.order_purchase_timestamp
+                ) AS first_purchase,
+
+                MAX(
+                    co.order_purchase_timestamp
+                ) AS last_purchase,
+
+                (
+                    SELECT order_status
+                    FROM ranked_orders
+                    WHERE order_rank = 1
+                ) AS last_order_status
+
             FROM customer_orders AS co
+
             LEFT JOIN payment_totals AS pt
                 ON co.order_id = pt.order_id
             """,
@@ -182,12 +218,26 @@ def get_customer_summary(customer_unique_id: str) -> dict | None:
         ).fetchone()
 
         total_orders = row["total_orders"]
-        lifetime_spend = round(float(row["lifetime_spend"]), 2)
+        payment_order_count = row["payment_order_count"]
+
+        lifetime_spend = round(
+            float(row["lifetime_spend"] or 0),
+            2,
+        )
 
         average_order_value = (
-            round(lifetime_spend / total_orders, 2)
-            if total_orders
+            round(
+                lifetime_spend / payment_order_count,
+                2,
+            )
+            if payment_order_count
             else 0.0
+        )
+
+        customer_type = (
+            "Returning"
+            if total_orders > 1
+            else "New"
         )
 
         return {
@@ -197,17 +247,19 @@ def get_customer_summary(customer_unique_id: str) -> dict | None:
             "average_order_value": average_order_value,
             "first_purchase": row["first_purchase"],
             "last_purchase": row["last_purchase"],
+            "customer_type": customer_type,
+            "last_order_status": row["last_order_status"],
         }
 
     finally:
         conn.close()
+
 
 def get_customer_payments(customer_unique_id: str) -> dict | None:
     conn = sqlite3.connect(settings.db_path)
     conn.row_factory = sqlite3.Row
 
     try:
-        # Check customer existence.
         customer = conn.execute(
             """
             SELECT 1
@@ -221,7 +273,6 @@ def get_customer_payments(customer_unique_id: str) -> dict | None:
         if customer is None:
             return None
 
-        # Find payment totals grouped by payment method.
         rows = conn.execute(
             """
             WITH customer_orders AS (
@@ -231,14 +282,19 @@ def get_customer_payments(customer_unique_id: str) -> dict | None:
                     ON c.customer_id = o.customer_id
                 WHERE c.customer_unique_id = ?
             )
+
             SELECT
                 p.payment_type,
                 COUNT(*) AS payment_count,
                 SUM(p.payment_value) AS total_amount
+
             FROM customer_orders AS co
+
             INNER JOIN order_payments AS p
                 ON co.order_id = p.order_id
+
             GROUP BY p.payment_type
+
             ORDER BY total_amount DESC
             """,
             (customer_unique_id,),
@@ -252,10 +308,16 @@ def get_customer_payments(customer_unique_id: str) -> dict | None:
         payment_methods = []
 
         for row in rows:
-            amount = round(float(row["total_amount"] or 0), 2)
+            amount = round(
+                float(row["total_amount"] or 0),
+                2,
+            )
 
             percentage = (
-                round(amount / total_payment_value * 100, 2)
+                round(
+                    amount / total_payment_value * 100,
+                    2,
+                )
                 if total_payment_value > 0
                 else 0.0
             )
@@ -269,8 +331,248 @@ def get_customer_payments(customer_unique_id: str) -> dict | None:
 
         return {
             "customer_unique_id": customer_unique_id,
-            "total_payment_value": round(total_payment_value, 2),
+            "total_payment_value": round(
+                total_payment_value,
+                2,
+            ),
             "payment_methods": payment_methods,
+        }
+
+    finally:
+        conn.close()
+
+
+# ---------------------------------------------------------
+# CUSTOMER DIRECTORY
+# Reads precomputed customer_directory_summary table.
+# One row per customer_unique_id.
+# ---------------------------------------------------------
+
+
+def get_customers(
+    page: int = 1,
+    limit: int = 20,
+    search: str | None = None,
+    state: str | None = None,
+    sort_by: str = "last_purchase",
+    sort_order: str = "desc",
+) -> dict:
+    """
+    Return a paginated directory of unique customers.
+
+    Reads precomputed customer metrics instead of recalculating
+    aggregations from the normalized source tables.
+
+    Search supports customer_unique_id, city and state.
+    """
+
+    # -----------------------------------------------------
+    # 1. Validate pagination
+    # -----------------------------------------------------
+
+    page = max(1, page)
+    limit = max(1, min(limit, 100))
+
+    # -----------------------------------------------------
+    # 2. Allowlist sorting columns
+    # -----------------------------------------------------
+
+    sort_columns = {
+        "customer_unique_id": "customer_unique_id",
+        "customer_city": "customer_city",
+        "total_orders": "total_orders",
+        "lifetime_spend": "lifetime_spend",
+        "average_order_value": "average_order_value",
+        "first_purchase": "first_purchase",
+        "last_purchase": "last_purchase",
+        "customer_type": "customer_type",
+        "last_order_status": "last_order_status",
+    }
+
+    sort_column = sort_columns.get(
+        sort_by,
+        "last_purchase",
+    )
+
+    direction = (
+        "ASC"
+        if sort_order.lower() == "asc"
+        else "DESC"
+    )
+
+    # -----------------------------------------------------
+    # 3. Normalize search filters
+    # -----------------------------------------------------
+
+    search = search.strip() if search else None
+    state = state.strip().upper() if state else None
+
+    where_clause = """
+        WHERE (
+            ? IS NULL
+
+            OR instr(
+                lower(customer_unique_id),
+                lower(?)
+            ) > 0
+
+            OR instr(
+                lower(COALESCE(customer_city, '')),
+                lower(?)
+            ) > 0
+
+            OR instr(
+                lower(COALESCE(customer_state, '')),
+                lower(?)
+            ) > 0
+        )
+
+        AND (
+            ? IS NULL
+
+            OR upper(
+                COALESCE(customer_state, '')
+            ) = ?
+        )
+    """
+
+    query_params = (
+        search,
+        search,
+        search,
+        search,
+        state,
+        state,
+    )
+
+    offset = (page - 1) * limit
+
+    # -----------------------------------------------------
+    # 4. Connect to database
+    # -----------------------------------------------------
+
+    conn = sqlite3.connect(settings.db_path)
+    conn.row_factory = sqlite3.Row
+
+    try:
+        # -------------------------------------------------
+        # 5. Count matching customers
+        # -------------------------------------------------
+
+        count_start = time.perf_counter()
+
+        total = conn.execute(
+            f"""
+            SELECT COUNT(*)
+            FROM customer_directory_summary
+            {where_clause}
+            """,
+            query_params,
+        ).fetchone()[0]
+
+        count_duration = time.perf_counter() - count_start
+
+        # -------------------------------------------------
+        # 6. Fetch requested page
+        # -------------------------------------------------
+
+        directory_start = time.perf_counter()
+
+        rows = conn.execute(
+            f"""
+            SELECT
+                customer_unique_id,
+                customer_city,
+                customer_state,
+                customer_zip_code_prefix,
+                record_count,
+                total_orders,
+                lifetime_spend,
+                average_order_value,
+                first_purchase,
+                last_purchase,
+                customer_type,
+                last_order_status
+
+            FROM customer_directory_summary
+
+            {where_clause}
+
+            ORDER BY
+                {sort_column} {direction},
+                customer_unique_id ASC
+
+            LIMIT ? OFFSET ?
+            """,
+            (*query_params, limit, offset),
+        ).fetchall()
+
+        directory_duration = time.perf_counter() - directory_start
+
+        # -------------------------------------------------
+        # 7. Format API response
+        # -------------------------------------------------
+
+        formatting_start = time.perf_counter()
+
+        items = []
+
+        for row in rows:
+            item = dict(row)
+
+            zip_prefix = item["customer_zip_code_prefix"]
+
+            item["customer_zip_code_prefix"] = (
+                str(zip_prefix).zfill(5)
+                if zip_prefix is not None
+                else None
+            )
+
+            item["lifetime_spend"] = round(
+                float(item["lifetime_spend"] or 0),
+                2,
+            )
+
+            item["average_order_value"] = round(
+                float(item["average_order_value"] or 0),
+                2,
+            )
+
+            items.append(item)
+
+        total_pages = (
+            (total + limit - 1) // limit
+            if total
+            else 0
+        )
+
+        formatting_duration = (
+            time.perf_counter() - formatting_start
+        )
+
+        # -------------------------------------------------
+        # 8. Performance measurements
+        # -------------------------------------------------
+
+        total_duration = (
+            count_duration
+            + directory_duration
+            + formatting_duration
+        )
+
+        print("\n--- Customer Directory Performance ---")
+        print(f"Count query:       {count_duration:.3f} seconds")
+        print(f"Directory query:   {directory_duration:.3f} seconds")
+        print(f"Formatting:        {formatting_duration:.3f} seconds")
+        print(f"Total measured:    {total_duration:.3f} seconds")
+        print("--------------------------------------\n")
+
+        return {
+            "items": items,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "total_pages": total_pages,
         }
 
     finally:

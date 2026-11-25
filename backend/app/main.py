@@ -94,6 +94,7 @@ app.add_middleware(
 # Routers
 from app.api.v1.routes.orders import router as orders_router  # noqa: E402
 from app.api.v1.routes.tickets import router as tickets_router
+from app.api.v1.routes.sla import router as sla_router
 
 # Register API routers
 app.include_router(
@@ -107,6 +108,8 @@ app.include_router(
 )
 
 app.include_router(customers_router, prefix="/api/v1")
+
+app.include_router(sla_router, prefix="/api/v1")
 
 # ---------------------------------------------------------------------------
 # Health
