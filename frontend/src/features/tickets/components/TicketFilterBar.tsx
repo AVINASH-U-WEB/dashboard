@@ -125,14 +125,10 @@ export const TicketFilterBar: FC<TicketFilterBarProps> = ({
         )}
       </div>
 
-      <div className="text-[11px] font-medium text-gray-500">
-        Filtered Results:{' '}
-        <span className="font-semibold text-gray-800">
-          {filteredCount.toLocaleString()}
-        </span>
-        {filteredCount !== totalCount && (
-          <span className="text-gray-400"> / {totalCount.toLocaleString()}</span>
-        )}
+      <div className="text-[11px] font-medium text-gray-400">
+        {filteredCount !== totalCount
+          ? `Showing ${filteredCount.toLocaleString()} of ${totalCount.toLocaleString()} tickets`
+          : 'All tickets in view'}
       </div>
     </div>
   )

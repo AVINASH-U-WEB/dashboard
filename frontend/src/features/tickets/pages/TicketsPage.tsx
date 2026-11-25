@@ -57,13 +57,8 @@ export const TicketsPage: FC = () => {
 
   return (
     <div className="w-full px-8 pb-12 space-y-6 max-w-[1600px] mx-auto">
-      {/* 1. Hero Header with Live Summary Pills & Actions */}
-      <TicketHero
-        tickets={tickets}
-        isFetching={isFetching}
-        onRefresh={() => refetch()}
-        onOpenCreate={() => setIsCreateModalOpen(true)}
-      />
+      {/* 1. Hero Header with Live Summary Pills */}
+      <TicketHero tickets={tickets} />
 
       {/* Active Search Indicator */}
       {searchQuery.trim() !== '' && (
@@ -107,9 +102,9 @@ export const TicketsPage: FC = () => {
       {/* 4. Tickets Ledger Table (always rendered with loading/error/empty states) */}
       <TicketTable
         tickets={paginatedTickets}
-        allTickets={tickets}
         totalFilteredCount={filteredTickets.length}
         isLoading={isLoading}
+        isFetching={isFetching}
         isError={isError}
         errorMessage={
           error instanceof Error
@@ -126,7 +121,7 @@ export const TicketsPage: FC = () => {
         onView={(ticket) => setSelectedTicket(ticket)}
         onEdit={(ticket) => setEditingTicket(ticket)}
         onOpenCreate={() => setIsCreateModalOpen(true)}
-        onRetry={() => refetch()}
+        onRefresh={() => refetch()}
         onResetFilters={resetFilters}
         hasActiveFilters={hasActiveFilters}
       />

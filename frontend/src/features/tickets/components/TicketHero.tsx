@@ -1,26 +1,18 @@
 import type { FC } from 'react'
-import { CheckCircle2, Flame, Plus, RefreshCw, Ticket as TicketIcon } from 'lucide-react'
+import { CheckCircle2, Flame, Ticket as TicketIcon } from 'lucide-react'
 import { useTicketStats } from '../hooks/useTicketStats'
 import type { Ticket } from '../types/ticket'
 
 interface TicketHeroProps {
   tickets: Ticket[]
-  isFetching: boolean
-  onRefresh: () => void
-  onOpenCreate: () => void
 }
 
-export const TicketHero: FC<TicketHeroProps> = ({
-  tickets,
-  isFetching,
-  onRefresh,
-  onOpenCreate,
-}) => {
+export const TicketHero: FC<TicketHeroProps> = ({ tickets }) => {
   const stats = useTicketStats(tickets)
 
   return (
     <div className="pt-6 pb-2">
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gray-200 text-[11px] font-bold text-gray-700 shadow-xs mb-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -34,8 +26,8 @@ export const TicketHero: FC<TicketHeroProps> = ({
           </p>
         </div>
 
-        {/* Live metric summary pills + actions */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* Live metric summary pills */}
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <div className="flex items-center gap-2 px-3.5 py-2 bg-white rounded-2xl border border-gray-200/80 shadow-xs">
             <div className="w-7 h-7 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-800">
               <TicketIcon className="w-3.5 h-3.5" />
@@ -77,25 +69,6 @@ export const TicketHero: FC<TicketHeroProps> = ({
               </p>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={onRefresh}
-            disabled={isFetching}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-white border border-gray-200/80 text-xs font-bold text-gray-700 shadow-xs hover:bg-gray-50 disabled:opacity-50 transition-colors"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={onOpenCreate}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#14141f] text-white text-xs font-bold shadow-xs hover:bg-[#1f1f2e] transition-colors"
-          >
-            <Plus className="w-4 h-4 text-yellow-400" />
-            <span>Open Ticket</span>
-          </button>
         </div>
       </div>
     </div>

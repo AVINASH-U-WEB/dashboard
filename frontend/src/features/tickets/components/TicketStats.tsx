@@ -18,8 +18,8 @@ export default function TicketStats({ tickets }: TicketStatsProps) {
 
   const cards = [
     {
-      bg: 'bg-[#fef08a]',
-      borderColor: 'border-yellow-300/60',
+      bg: 'bg-[#ffccd5]', // pastel coral
+      borderColor: 'border-pink-200/60',
       icon: TicketIcon,
       label: 'Total Tickets',
       sub: 'All logged support cases',
@@ -31,7 +31,7 @@ export default function TicketStats({ tickets }: TicketStatsProps) {
       chartVariant: 'mixed' as const,
     },
     {
-      bg: 'bg-[#fbcfe8]',
+      bg: 'bg-[#d1fae5]', // pastel mint
       borderColor: 'border-pink-300/60',
       icon: Inbox,
       label: 'Open Queue',
