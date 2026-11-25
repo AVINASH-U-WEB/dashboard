@@ -36,14 +36,7 @@ export function Drawer({
 
   useEffect(() => {
     const dialog = dialogRef.current
-    if (!dialog) return
-
-    if (!open) {
-      if (dialog.open) {
-        dialog.close()
-      }
-      return
-    }
+    if (!dialog || !open) return
 
     if (!dialog.open) {
       dialog.showModal()
@@ -59,6 +52,10 @@ export function Drawer({
       }
     }
   }, [open])
+
+  if (!open) {
+    return null
+  }
 
   // Native Escape key cancellation handler
   const handleCancel = (event: SyntheticEvent<HTMLDialogElement, Event>) => {
@@ -78,29 +75,13 @@ export function Drawer({
 
   return (
     <>
-      <style>{`
-        @keyframes drawerSlideInRight {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
-        }
-        @keyframes drawerSlideInLeft {
-          from { transform: translateX(-100%); }
-          to { transform: translateX(0); }
-        }
-        .drawer-slide-right {
-          animation: drawerSlideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .drawer-slide-left {
-          animation: drawerSlideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
       <dialog
         ref={dialogRef}
         onCancel={handleCancel}
         onClick={handleBackdropClick}
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
-        className={`fixed inset-0 m-0 h-full max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-black/40 backdrop:backdrop-blur-xs flex ${
+        className={`fixed inset-0 m-0 h-full max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-black/40 backdrop:backdrop-blur-xs hidden open:flex ${
           side === 'right' ? 'justify-end' : 'justify-start'
         } ${className}`.trim()}
       >

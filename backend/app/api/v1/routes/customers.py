@@ -5,14 +5,16 @@ from app.schemas.customer import (
     CustomerOrdersResponse,
     CustomerSummaryOut,
     CustomerPaymentsResponse,
-    CustomerDirectoryResponse
+    CustomerDirectoryResponse,
+    CustomerDirectoryMetaOut,
 )
 from app.services.customer_service import (
     get_customer_profile,
     get_customer_orders,
     get_customer_summary,
     get_customer_payments,
-    get_customers
+    get_customers,
+    get_customer_directory_meta,
 )
 
 router = APIRouter(
@@ -31,6 +33,7 @@ def list_customers(
     limit: int = Query(20, ge=1, le=100),
     search: str | None = Query(None, max_length=100),
     state: str | None = Query(None, min_length=2, max_length=2),
+    customer_type: Literal["New", "Returning"] | None = Query(None),
     sort_by: Literal[
         "customer_unique_id",
         "customer_city",
@@ -46,11 +49,21 @@ def list_customers(
         limit=limit,
         search=search,
         state=state,
+        customer_type=customer_type,
         sort_by=sort_by,
         sort_order=sort_order,
     )
 
     return CustomerDirectoryResponse(**result)
+
+
+@router.get(
+    "/meta",
+    response_model=CustomerDirectoryMetaOut,
+)
+def get_directory_meta() -> CustomerDirectoryMetaOut:
+    meta = get_customer_directory_meta()
+    return CustomerDirectoryMetaOut(**meta)
 
 
 

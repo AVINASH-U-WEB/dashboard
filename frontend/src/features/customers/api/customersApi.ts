@@ -1,4 +1,5 @@
 import type {
+  CustomerDirectoryMeta,
   CustomersQueryParams,
   CustomersResponse,
   CustomerProfile,
@@ -43,6 +44,10 @@ export async function fetchCustomers(
     query.append('state', params.state)
   }
 
+  if (params.customer_type) {
+    query.append('customer_type', params.customer_type)
+  }
+
   if (params.sort_by) {
     query.append('sort_by', params.sort_by)
   }
@@ -53,6 +58,14 @@ export async function fetchCustomers(
 
   return apiClient.get<CustomersResponse>('/customers', {
     params: query,
+    signal: extractSignal(options),
+  })
+}
+
+export async function fetchCustomerDirectoryMeta(
+  options?: AbortSignal | { signal?: AbortSignal }
+): Promise<CustomerDirectoryMeta> {
+  return apiClient.get<CustomerDirectoryMeta>('/customers/meta', {
     signal: extractSignal(options),
   })
 }
