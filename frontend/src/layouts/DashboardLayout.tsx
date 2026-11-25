@@ -1,8 +1,10 @@
 import type { FC } from 'react'
 import { useState } from 'react'
-import { Outlet, useOutletContext } from 'react-router-dom'
+import { Outlet, useLocation, useOutletContext } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
+
+const HIDDEN_TOPBAR_ROUTES = new Set(['/sla', '/tickets', '/customers'])
 
 export interface DashboardOutletContext {
   searchQuery: string
@@ -16,6 +18,10 @@ export function useDashboardContext() {
 export const DashboardLayout: FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const { pathname } = useLocation()
+
+  const normalizedPath = pathname.replace(/\/+$/, '') || '/'
+  const showTopBar = !HIDDEN_TOPBAR_ROUTES.has(normalizedPath)
 
   const contextValue: DashboardOutletContext = {
     searchQuery,
@@ -33,12 +39,14 @@ export const DashboardLayout: FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen min-w-0 overflow-hidden">
         {/* Top Bar */}
-        <TopBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          isSidebarCollapsed={isSidebarCollapsed}
-          onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
-        />
+        {showTopBar && (
+          <TopBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            isSidebarCollapsed={isSidebarCollapsed}
+            onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
+          />
+        )}
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
