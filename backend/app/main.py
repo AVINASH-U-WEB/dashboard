@@ -16,6 +16,9 @@ from app.core.search_index import SearchIndex
 import app.api.v1.routes.orders as orders_module
 from app.api.v1.routes.customers import router as customers_router
 
+from app.api.v1.routes.orders import router as orders_router
+from app.api.v1.routes.tickets import router as tickets_router
+
 # ---------------------------------------------------------------------------
 # Module-level singletons
 # ---------------------------------------------------------------------------
@@ -90,9 +93,19 @@ app.add_middleware(
 
 # Routers
 from app.api.v1.routes.orders import router as orders_router  # noqa: E402
+from app.api.v1.routes.tickets import router as tickets_router
 from app.api.v1.routes.sla import router as sla_router
 
-app.include_router(orders_router, prefix="/api/v1")
+# Register API routers
+app.include_router(
+    orders_router,
+    prefix="/api/v1"
+)
+
+app.include_router(
+    tickets_router,
+    prefix="/api/v1"
+)
 
 app.include_router(customers_router, prefix="/api/v1")
 

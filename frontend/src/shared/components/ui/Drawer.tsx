@@ -36,14 +36,7 @@ export function Drawer({
 
   useEffect(() => {
     const dialog = dialogRef.current
-    if (!dialog) return
-
-    if (!open) {
-      if (dialog.open) {
-        dialog.close()
-      }
-      return
-    }
+    if (!dialog || !open) return
 
     if (!dialog.open) {
       dialog.showModal()
@@ -59,6 +52,10 @@ export function Drawer({
       }
     }
   }, [open])
+
+  if (!open) {
+    return null
+  }
 
   // Native Escape key cancellation handler
   const handleCancel = (event: SyntheticEvent<HTMLDialogElement, Event>) => {
