@@ -397,3 +397,87 @@ def test_customer_directory_returns_empty_results(
     assert result["total"] == 0
     assert result["items"] == []
     assert result["total_pages"] == 0
+
+
+def test_customer_directory_searches_zip_prefix(
+    customer_directory_db,
+):
+    result = customer_service.get_customers(search="54321")
+
+    assert result["total"] == 1
+    assert result["items"][0]["customer_unique_id"] == "u-1"
+
+
+def test_customer_directory_filters_customer_type(
+    customer_directory_db,
+):
+    returning = customer_service.get_customers(customer_type="Returning")
+    assert returning["total"] == 1
+    assert returning["items"][0]["customer_unique_id"] == "u-1"
+
+    new_only = customer_service.get_customers(customer_type="New")
+    assert new_only["total"] == 1
+    assert new_only["items"][0]["customer_unique_id"] == "u-2"
+
+
+def test_customer_directory_combines_search_state_and_type(
+    customer_directory_db,
+):
+    match = customer_service.get_customers(
+        search="54321",
+        state="SP",
+        customer_type="Returning",
+    )
+    assert match["total"] == 1
+    assert match["items"][0]["customer_unique_id"] == "u-1"
+
+    mismatch = customer_service.get_customers(
+        search="54321",
+        state="RJ",
+        customer_type="Returning",
+    )
+    assert mismatch["total"] == 0
+    assert mismatch["items"] == []
+
+
+def test_customer_directory_meta_returns_counts_and_states(
+    customer_directory_db,
+):
+    meta = customer_service.get_customer_directory_meta()
+
+    assert meta["total_customers"] == 2
+    assert meta["returning_customers"] == 1
+    assert meta["new_customers"] == 1
+    assert meta["states"] == ["RJ", "SP"]
+
+
+def test_customer_directory_routes_meta_and_combined_filters(
+    customer_directory_db,
+):
+    from app.api.v1.routes import customers as customers_routes
+
+    route_paths = [route.path for route in customers_routes.router.routes]
+    assert route_paths.index("/customers/meta") < route_paths.index(
+        "/customers/{customer_unique_id}"
+    )
+
+    meta_out = customers_routes.get_directory_meta()
+    assert meta_out.model_dump() == {
+        "total_customers": 2,
+        "returning_customers": 1,
+        "new_customers": 1,
+        "states": ["RJ", "SP"],
+    }
+
+    list_out = customers_routes.list_customers(
+        page=1,
+        limit=20,
+        search="54321",
+        state="SP",
+        customer_type="Returning",
+        sort_by="last_purchase",
+        sort_order="desc",
+    )
+    payload = list_out.model_dump()
+    assert payload["total"] == 1
+    assert payload["items"][0]["customer_unique_id"] == "u-1"

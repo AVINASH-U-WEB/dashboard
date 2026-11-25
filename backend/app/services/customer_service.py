@@ -1,8 +1,10 @@
 
+import logging
 import sqlite3
-import time
 
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def get_customer_profile(customer_unique_id: str) -> dict | None:
@@ -349,11 +351,51 @@ def get_customer_payments(customer_unique_id: str) -> dict | None:
 # ---------------------------------------------------------
 
 
+def get_customer_directory_meta() -> dict:
+    """
+    Return aggregate customer directory counts and distinct represented states
+    from precomputed customer_directory_summary.
+    """
+    conn = sqlite3.connect(settings.db_path)
+    conn.row_factory = sqlite3.Row
+
+    try:
+        counts = conn.execute(
+            """
+            SELECT
+                COUNT(*) AS total_customers,
+                COALESCE(SUM(CASE WHEN customer_type = 'Returning' THEN 1 ELSE 0 END), 0) AS returning_customers,
+                COALESCE(SUM(CASE WHEN customer_type = 'New' THEN 1 ELSE 0 END), 0) AS new_customers
+            FROM customer_directory_summary
+            """
+        ).fetchone()
+
+        state_rows = conn.execute(
+            """
+            SELECT DISTINCT upper(trim(customer_state)) AS state
+            FROM customer_directory_summary
+            WHERE customer_state IS NOT NULL
+              AND trim(customer_state) != ''
+            ORDER BY state ASC
+            """
+        ).fetchall()
+
+        return {
+            "total_customers": int(counts["total_customers"] or 0),
+            "returning_customers": int(counts["returning_customers"] or 0),
+            "new_customers": int(counts["new_customers"] or 0),
+            "states": [row["state"] for row in state_rows],
+        }
+    finally:
+        conn.close()
+
+
 def get_customers(
     page: int = 1,
     limit: int = 20,
     search: str | None = None,
     state: str | None = None,
+    customer_type: str | None = None,
     sort_by: str = "last_purchase",
     sort_order: str = "desc",
 ) -> dict:
@@ -363,7 +405,7 @@ def get_customers(
     Reads precomputed customer metrics instead of recalculating
     aggregations from the normalized source tables.
 
-    Search supports customer_unique_id, city and state.
+    Search supports customer_unique_id, city, ZIP prefix and state.
     """
 
     # -----------------------------------------------------
@@ -404,8 +446,13 @@ def get_customers(
     # 3. Normalize search filters
     # -----------------------------------------------------
 
-    search = search.strip() if search else None
-    state = state.strip().upper() if state else None
+    search = search.strip() if search and search.strip() else None
+    state = state.strip().upper() if state and state.strip() else None
+    customer_type = (
+        customer_type.strip().capitalize()
+        if customer_type and customer_type.strip()
+        else None
+    )
 
     where_clause = """
         WHERE (
@@ -422,6 +469,11 @@ def get_customers(
             ) > 0
 
             OR instr(
+                lower(COALESCE(customer_zip_code_prefix, '')),
+                lower(?)
+            ) > 0
+
+            OR instr(
                 lower(COALESCE(customer_state, '')),
                 lower(?)
             ) > 0
@@ -434,6 +486,14 @@ def get_customers(
                 COALESCE(customer_state, '')
             ) = ?
         )
+
+        AND (
+            ? IS NULL
+
+            OR lower(
+                COALESCE(customer_type, '')
+            ) = lower(?)
+        )
     """
 
     query_params = (
@@ -441,8 +501,11 @@ def get_customers(
         search,
         search,
         search,
+        search,
         state,
         state,
+        customer_type,
+        customer_type,
     )
 
     offset = (page - 1) * limit
@@ -459,8 +522,6 @@ def get_customers(
         # 5. Count matching customers
         # -------------------------------------------------
 
-        count_start = time.perf_counter()
-
         total = conn.execute(
             f"""
             SELECT COUNT(*)
@@ -470,13 +531,9 @@ def get_customers(
             query_params,
         ).fetchone()[0]
 
-        count_duration = time.perf_counter() - count_start
-
         # -------------------------------------------------
         # 6. Fetch requested page
         # -------------------------------------------------
-
-        directory_start = time.perf_counter()
 
         rows = conn.execute(
             f"""
@@ -507,13 +564,9 @@ def get_customers(
             (*query_params, limit, offset),
         ).fetchall()
 
-        directory_duration = time.perf_counter() - directory_start
-
         # -------------------------------------------------
         # 7. Format API response
         # -------------------------------------------------
-
-        formatting_start = time.perf_counter()
 
         items = []
 
@@ -545,27 +598,6 @@ def get_customers(
             if total
             else 0
         )
-
-        formatting_duration = (
-            time.perf_counter() - formatting_start
-        )
-
-        # -------------------------------------------------
-        # 8. Performance measurements
-        # -------------------------------------------------
-
-        total_duration = (
-            count_duration
-            + directory_duration
-            + formatting_duration
-        )
-
-        print("\n--- Customer Directory Performance ---")
-        print(f"Count query:       {count_duration:.3f} seconds")
-        print(f"Directory query:   {directory_duration:.3f} seconds")
-        print(f"Formatting:        {formatting_duration:.3f} seconds")
-        print(f"Total measured:    {total_duration:.3f} seconds")
-        print("--------------------------------------\n")
 
         return {
             "items": items,
