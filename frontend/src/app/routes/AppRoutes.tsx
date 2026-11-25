@@ -4,6 +4,7 @@ import { DashboardLayout, useDashboardContext } from '../../layouts/DashboardLay
 import { Dashboard } from '../../features/orders/pages/Dashboard'
 import { Customers } from '../../features/customers/pages/Customers'
 import { TicketsPage } from '../../features/tickets/pages/TicketsPage'
+import { SLADashboard } from '../../features/sla/pages/SLADashboard'
 import { SettingsPage } from '../../pages/SettingsPage'
 import { NotFoundPage } from '../../pages/NotFoundPage'
 
@@ -32,7 +33,7 @@ export function AppRoutes() {
         <Route path="/orders" element={<DashboardRoute activePage="ledger" />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/tickets" element={<TicketsPage />} />
-        <Route path="/sla" element={<DashboardRoute activePage="sla_escalations" />} />
+        <Route path="/sla" element={<SLADashboard />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
