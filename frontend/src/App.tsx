@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Sidebar } from './components/Sidebar'
 import { Dashboard } from './pages/Dashboard'
+import Tickets from './pages/Tickets'
 import { Search, Bell, Settings, PanelLeft, X } from 'lucide-react'
 
 export default function App() {
