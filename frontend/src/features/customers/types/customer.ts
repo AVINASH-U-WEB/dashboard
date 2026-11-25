@@ -21,11 +21,21 @@ export interface CustomersResponse {
   total_pages: number
 }
 
+export interface CustomerDirectoryMeta {
+  total_customers: number
+  returning_customers: number
+  new_customers: number
+  states: string[]
+}
+
+export type CustomerTypeFilter = 'New' | 'Returning'
+
 export interface CustomersQueryParams {
   page?: number
   limit?: number
   search?: string
   state?: string
+  customer_type?: CustomerTypeFilter
   sort_by?: CustomerSortField
   sort_order?: 'asc' | 'desc'
 }
@@ -35,11 +45,7 @@ export type CustomerSortField =
   | 'customer_city'
   | 'total_orders'
   | 'lifetime_spend'
-  | 'average_order_value'
-  | 'first_purchase'
   | 'last_purchase'
-  | 'customer_type'
-  | 'last_order_status'
 
 
 

@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -40,7 +42,7 @@ class CustomerSummaryOut(BaseModel):
     average_order_value: float
     first_purchase: str | None = None
     last_purchase: str | None = None
-    customer_type: str
+    customer_type: Literal["New", "Returning"]
     last_order_status: str | None = None
 
 class CustomerPaymentMethodOut(BaseModel):
@@ -79,3 +81,10 @@ class CustomerDirectoryResponse(BaseModel):
     page: int
     limit: int
     total_pages: int
+
+
+class CustomerDirectoryMetaOut(BaseModel):
+    total_customers: int
+    returning_customers: int
+    new_customers: int
+    states: list[str]
