@@ -1,12 +1,12 @@
 import type { FC } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { DashboardLayout, useDashboardContext } from '../../layouts/DashboardLayout'
-import { Dashboard } from '../../features/orders/pages/Dashboard'
-import { Customers } from '../../features/customers/pages/Customers'
-import { TicketsPage } from '../../features/tickets/pages/TicketsPage'
-import { SLADashboard } from '../../features/sla/pages/SLADashboard'
-import { SettingsPage } from '../../pages/SettingsPage'
-import { NotFoundPage } from '../../pages/NotFoundPage'
+import { DashboardLayout, useDashboardContext } from '@/layouts/DashboardLayout'
+import { Dashboard } from '@/features/orders'
+import { Customers } from '@/features/customers'
+import { TicketsPage } from '@/features/tickets'
+import { SLADashboard } from '@/features/sla'
+import { SettingsPage } from '@/pages/SettingsPage'
+import { NotFoundPage } from '@/pages/NotFoundPage'
 
 interface DashboardRouteProps {
   activePage: string

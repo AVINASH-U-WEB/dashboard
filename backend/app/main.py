@@ -15,8 +15,8 @@ from app.core.memory_store import OrderMemoryStore
 from app.core.search_index import SearchIndex
 import app.api.v1.routes.orders as orders_module
 from app.api.v1.routes.customers import router as customers_router
-
 from app.api.v1.routes.orders import router as orders_router
+from app.api.v1.routes.sla import router as sla_router
 from app.api.v1.routes.tickets import router as tickets_router
 
 # ---------------------------------------------------------------------------
@@ -90,11 +90,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Routers
-from app.api.v1.routes.orders import router as orders_router  # noqa: E402
-from app.api.v1.routes.tickets import router as tickets_router
-from app.api.v1.routes.sla import router as sla_router
 
 # Register API routers
 app.include_router(
